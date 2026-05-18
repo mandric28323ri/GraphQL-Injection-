@@ -1,0 +1,78 @@
+type Query {
+    users: [User]
+    userById(id: ID!): User
+    searchUsers(searchTerm: String!): [User]
+    posts: [Post]
+    postById(id: ID!): Post
+    postsByCategory(category: String!): [Post]
+    comments: [Comment]
+    commentsByPost(postId: ID!): [Comment]
+}
+
+type Mutation {
+    createUser(input: CreateUserInput!): User
+    updateUser(id: ID!, input: UpdateUserInput!): User
+    deleteUser(id: ID!): Boolean
+    createPost(input: CreatePostInput!): Post
+    deletePost(id: ID!): Boolean
+    createComment(input: CreateCommentInput!): Comment
+    login(username: String!, password: String!): AuthPayload
+}
+
+type User {
+    id: ID!
+    username: String!
+    email: String!
+    password: String!
+    role: String!
+    posts: [Post]
+}
+
+type Post {
+    id: ID!
+    title: String!
+    content: String!
+    category: String!
+    author: User!
+    comments: [Comment]
+}
+
+type Comment {
+    id: ID!
+    content: String!
+    author: User!
+    post: Post!
+}
+
+type AuthPayload {
+    token: String
+    user: User
+    rawPassword: String
+}
+
+input CreateUserInput {
+    username: String!
+    email: String!
+    password: String!
+    role: String
+}
+
+input UpdateUserInput {
+    username: String
+    email: String
+    password: String
+    role: String
+}
+
+input CreatePostInput {
+    title: String!
+    content: String!
+    category: String!
+    authorId: ID!
+}
+
+input CreateCommentInput {
+    content: String!
+    authorId: ID!
+    postId: ID!
+}

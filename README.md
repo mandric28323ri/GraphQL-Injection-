@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # websec-ui
+=======
+# GraphQL Injection RAF
+>>>>>>> d28c9a79c7867395ecdb4688b756c1f69342aa40
 
 
 
@@ -15,14 +19,22 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
+<<<<<<< HEAD
 git remote add origin https://gitlab.com/websec_class/websec-ui.git
+=======
+git remote add origin https://gitlab.com/mstranjancev6023ri/graphql-injection-raf.git
+>>>>>>> d28c9a79c7867395ecdb4688b756c1f69342aa40
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
+<<<<<<< HEAD
 * [Set up project integrations](https://gitlab.com/websec_class/websec-ui/-/settings/integrations)
+=======
+* [Set up project integrations](https://gitlab.com/mstranjancev6023ri/graphql-injection-raf/-/settings/integrations)
+>>>>>>> d28c9a79c7867395ecdb4688b756c1f69342aa40
 
 ## Collaborate with your team
 
