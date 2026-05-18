@@ -21,6 +21,8 @@ body {
     width: 360px;
     border-radius: 14px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    margin: 60px auto 0 auto;
+    
 }
 
 .card button {
@@ -94,4 +96,53 @@ button:hover {
 
 .logout-btn:hover {
     background: #dc2626;
+}
+
+.centered-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.review-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+.back-arrow {
+    color: #4f46e5;
+    cursor: pointer;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.review-card {
+    width: 100%;
+    max-width: 500px;
+}
+
+.review-info {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #374151;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 12px 0 6px 0;
+    color: #374151;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    font-family: system-ui, sans-serif;
+    resize: vertical;
 }

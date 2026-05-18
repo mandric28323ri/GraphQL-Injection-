@@ -4,22 +4,28 @@ if (getToken()) {
 
 async function login() {
 
-    const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            email: email.value,
-            password: password.value
-        })
-    });
+    const query = `
+        mutation {
+            login(username: "${username.value}", password: "${password.value}") {
+                token
+                user { id username email role }
+            }
+        }
+    `;
 
-    if (!response.ok) {
+    try {
+        const data = await graphqlRequest(query);
+
+        if (!data.login || !data.login.token) {
+            error.innerText = "Invalid credentials";
+            return;
+        }
+
+        setToken(data.login.token);
+        setUser(data.login.user);
+        window.location.href = "app.html";
+
+    } catch (err) {
         error.innerText = "Invalid credentials";
-        return;
     }
-
-    const data = await response.json();
-    setToken(data.accessToken);
-
-    window.location.href = "app.html";
 }

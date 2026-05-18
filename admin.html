@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+    <h2>Admin Panel</h2>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <a href="app.html" style="font-size:14px;color:#4f46e5;text-decoration:none;">← Back</a>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card" style="width:100%;max-width:700px;margin:auto;">
+        <h3>Svi korisnici</h3>
+        <div id="usersTable">Loading...</div>
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -6,8 +6,18 @@ function setToken(token) {
     localStorage.setItem("token", token);
 }
 
+function setUser(user) {
+    localStorage.setItem("user", JSON.stringify(user));
+}
+
+function getUser() {
+    const u = localStorage.getItem("user");
+    return u ? JSON.parse(u) : null;
+}
+
 function logout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     window.location.href = "login.html";
 }
 

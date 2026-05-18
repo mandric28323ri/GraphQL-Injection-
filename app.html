@@ -1,22 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Movie Finder</title>
+    <title>Blog App</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <div class="topbar">
-    <h2>Movie Finder</h2>
-    <button class="logout-btn" onclick="logout()">Logout</button>
+    <h2>Blog App</h2>
+    <div class="topbar-right">
+        <span id="userInfo" class="topbar-user"></span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
 </div>
 
 <div class="container">
 
-    <input id="movieId" type="number" placeholder="Enter movie ID">
-    <button onclick="getMovie()">Search</button>
+    <div class="card">
+        <h3>Search Blog</h3>
+        <input id="blogId" type="number" placeholder="Enter blog ID">
+        <button onclick="getBlog()">Search</button>
+        <div id="blogCard" class="blog-card" style="display:none;"></div>
+    </div>
 
-    <div id="movieCard" class="card movie-card" style="display:none;"></div>
+    <div class="card" style="margin-top:20px;">
+        <h3>My Blogs</h3>
+        <div id="myBlogs">Loading...</div>
+    </div>
 
 </div>
 
