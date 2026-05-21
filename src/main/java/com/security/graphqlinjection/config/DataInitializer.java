@@ -1,9 +1,7 @@
 package com.security.graphqlinjection.config;
 
-import com.security.graphqlinjection.model.Comment;
 import com.security.graphqlinjection.model.Post;
 import com.security.graphqlinjection.model.User;
-import com.security.graphqlinjection.repository.CommentRepository;
 import com.security.graphqlinjection.repository.PostRepository;
 import com.security.graphqlinjection.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +16,10 @@ public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
 
     @Override
     public void run(String... args) {
-        log.info("Initializing demo data...");
+        log.info("Initializing data...");
 
         User admin = userRepository.save(User.builder()
                 .username("admin")
@@ -76,29 +73,13 @@ public class DataInitializer implements CommandLineRunner {
         postRepository.save(Post.builder()
                 .title("CONFIDENTIAL: Admin Notes")
                 .content("Database credentials: root/toor, API key: sk-secret-key-12345")
-                .category("admin")
+                .category("hidden")
+                .postPassword("admin123")
                 .author(admin)
                 .build());
 
-        commentRepository.save(Comment.builder()
-                .content("Great article, very informative!")
-                .author(nikola)
-                .post(post1)
-                .build());
 
-        commentRepository.save(Comment.builder()
-                .content("I learned a lot from this post.")
-                .author(sminka)
-                .post(post1)
-                .build());
-
-        commentRepository.save(Comment.builder()
-                .content("Security is very important indeed.")
-                .author(marko)
-                .post(post2)
-                .build());
-
-        log.info("Demo data initialized!");
+        log.info("Data initialized!");
         log.info("GraphiQL: http://localhost:8080/graphiql");
         log.info("H2 Console: http://localhost:8080/h2-console");
     }

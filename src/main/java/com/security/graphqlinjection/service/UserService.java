@@ -1,7 +1,6 @@
 package com.security.graphqlinjection.service;
 
 import com.security.graphqlinjection.model.User;
-import com.security.graphqlinjection.repository.CommentRepository;
 import com.security.graphqlinjection.repository.PostRepository;
 import com.security.graphqlinjection.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
     @PersistenceContext
@@ -63,8 +61,6 @@ public class UserService {
 
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
-
-            commentRepository.deleteAll(commentRepository.findByAuthorId(id));
 
             postRepository.deleteAll(postRepository.findByAuthorId(id));
 

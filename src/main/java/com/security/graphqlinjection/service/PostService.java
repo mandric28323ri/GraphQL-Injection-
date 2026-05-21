@@ -21,9 +21,11 @@ public class PostService {
 
     @PersistenceContext
     private EntityManager entityManager;
-
+    // RANJIVO : IDOR
     public List<Post> findAll() {
-        return postRepository.findAll();
+        return postRepository.findAll()
+                .stream().filter(p -> !p.getCategory().equals("hidden"))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     public Optional<Post> findById(Long id) {
@@ -56,5 +58,13 @@ public class PostService {
             return true;
         }
         return false;
+    }
+    public Optional<Post> updatePost(Long id, String title, String content, String category) {
+        return postRepository.findById(id).map(post -> {
+            if (title != null) post.setTitle(title);
+            if (content != null) post.setContent(content);
+            if (category != null) post.setCategory(category);
+            return postRepository.save(post);
+        });
     }
 }

@@ -5,8 +5,7 @@ type Query {
     posts: [Post]
     postById(id: ID!): Post
     postsByCategory(category: String!): [Post]
-    comments: [Comment]
-    commentsByPost(postId: ID!): [Comment]
+
 }
 
 type Mutation {
@@ -15,7 +14,7 @@ type Mutation {
     deleteUser(id: ID!): Boolean
     createPost(input: CreatePostInput!): Post
     deletePost(id: ID!): Boolean
-    createComment(input: CreateCommentInput!): Comment
+    updatePost(id: ID!, input: UpdatePostInput!): Post
     login(username: String!, password: String!): AuthPayload
 }
 
@@ -34,15 +33,9 @@ type Post {
     content: String!
     category: String!
     author: User!
-    comments: [Comment]
+    postPassword: String
 }
 
-type Comment {
-    id: ID!
-    content: String!
-    author: User!
-    post: Post!
-}
 
 type AuthPayload {
     token: String
@@ -71,8 +64,8 @@ input CreatePostInput {
     authorId: ID!
 }
 
-input CreateCommentInput {
-    content: String!
-    authorId: ID!
-    postId: ID!
+input UpdatePostInput {
+    title: String
+    content: String
+    category: String
 }

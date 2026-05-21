@@ -31,8 +31,6 @@ public class Post {
     @EqualsAndHashCode.Exclude
     private User author;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<Comment> comments;
+    @Column(name = "post_password")
+    private String postPassword;
 }
