@@ -6,6 +6,7 @@ import com.security.graphqlinjection.model.User;
 import com.security.graphqlinjection.service.CommentService;
 import com.security.graphqlinjection.service.PostService;
 import com.security.graphqlinjection.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -19,17 +20,28 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GraphQLResolver {
 
+
     private final UserService userService;
     private final PostService postService;
     private final CommentService commentService;
+    private final HttpServletRequest request;
+
+    private void checkAuth() {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new RuntimeException("Unauthorized");
+        }
+    }
 
     @QueryMapping
     public List<User> users() {
+        checkAuth();
         return userService.findAll();
     }
 
     @QueryMapping
     public User userById(@Argument String id) {
+        checkAuth();
         return userService.findById(Long.parseLong(id)).orElse(null);
     }
 

@@ -9,6 +9,7 @@ import com.security.graphqlinjection.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
@@ -27,28 +29,28 @@ public class DataInitializer implements CommandLineRunner {
         User admin = userRepository.save(User.builder()
                 .username("admin")
                 .email("admin@gmail.com")
-                .password("admin123")
+                .password(passwordEncoder.encode("admin123"))
                 .role("ADMIN")
                 .build());
 
         User marko = userRepository.save(User.builder()
                 .username("marko")
                 .email("marko@gmail.com")
-                .password("marko123")
+                .password(passwordEncoder.encode("marko123"))
                 .role("USER")
                 .build());
 
         User nikola = userRepository.save(User.builder()
                 .username("nikola")
                 .email("nikola@gmail.com")
-                .password("nikola123")
+                .password(passwordEncoder.encode("nikola123"))
                 .role("USER")
                 .build());
 
         User sminka = userRepository.save(User.builder()
                 .username("sminka")
                 .email("sminka@gmail.com")
-                .password("sminka123")
+                .password(passwordEncoder.encode("sminka123"))
                 .role("USER")
                 .build());
 

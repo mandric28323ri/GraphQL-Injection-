@@ -33,9 +33,7 @@ public class PostService {
     // RANJIVO: JPQL injection kroz category parametar
     @SuppressWarnings("unchecked")
     public List<Post> findByCategory(String category) {
-        String jpql = "SELECT p FROM Post p WHERE p.category = '" + category + "'";
-        System.out.println("[VULNERABLE] Executing JPQL: " + jpql);
-        return entityManager.createQuery(jpql).getResultList();
+        return postRepository.findByCategory(category);
     }
 
     public Post createPost(String title, String content, String category, Long authorId) {
