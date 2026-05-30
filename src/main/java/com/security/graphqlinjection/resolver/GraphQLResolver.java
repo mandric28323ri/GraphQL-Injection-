@@ -1,9 +1,7 @@
 package com.security.graphqlinjection.resolver;
 
-import com.security.graphqlinjection.model.Comment;
 import com.security.graphqlinjection.model.Post;
 import com.security.graphqlinjection.model.User;
-import com.security.graphqlinjection.service.CommentService;
 import com.security.graphqlinjection.service.PostService;
 import com.security.graphqlinjection.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +21,6 @@ public class GraphQLResolver {
 
     private final UserService userService;
     private final PostService postService;
-    private final CommentService commentService;
     private final HttpServletRequest request;
 
     private void checkAuth() {
@@ -67,16 +64,6 @@ public class GraphQLResolver {
         return postService.findByCategory(category);
     }
 
-    @QueryMapping
-    public List<Comment> comments() {
-        return commentService.findAll();
-    }
-
-    @QueryMapping
-    public List<Comment> commentsByPost(@Argument String postId) {
-        return commentService.findByPostId(Long.parseLong(postId));
-    }
-
     @MutationMapping
     public User createUser(@Argument Map<String, Object> input) {
         return userService.createUser(
@@ -118,14 +105,6 @@ public class GraphQLResolver {
         return postService.deletePost(Long.parseLong(id));
     }
 
-    @MutationMapping
-    public Comment createComment(@Argument Map<String, Object> input) {
-        return commentService.createComment(
-                (String) input.get("content"),
-                Long.parseLong(input.get("authorId").toString()),
-                Long.parseLong(input.get("postId").toString())
-        );
-    }
 
     @MutationMapping
     public Map<String, Object> login(@Argument String username, @Argument String password) {
@@ -154,18 +133,4 @@ public class GraphQLResolver {
         return post.getAuthor();
     }
 
-    @SchemaMapping(typeName = "Post", field = "comments")
-    public List<Comment> postComments(Post post) {
-        return commentService.findByPostId(post.getId());
-    }
-
-    @SchemaMapping(typeName = "Comment", field = "author")
-    public User commentAuthor(Comment comment) {
-        return comment.getAuthor();
-    }
-
-    @SchemaMapping(typeName = "Comment", field = "post")
-    public Post commentPost(Comment comment) {
-        return comment.getPost();
-    }
 }
