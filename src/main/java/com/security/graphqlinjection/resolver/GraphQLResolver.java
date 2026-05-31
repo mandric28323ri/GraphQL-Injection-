@@ -1,7 +1,9 @@
 package com.security.graphqlinjection.resolver;
 
+import com.security.graphqlinjection.config.JwtService;
 import com.security.graphqlinjection.model.Post;
 import com.security.graphqlinjection.model.User;
+import com.security.graphqlinjection.repository.UserRepository;
 import com.security.graphqlinjection.service.PostService;
 import com.security.graphqlinjection.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,11 +24,17 @@ public class GraphQLResolver {
     private final UserService userService;
     private final PostService postService;
     private final HttpServletRequest request;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     private void checkAuth() {
-        String token = request.getHeader("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Unauthorized");
+        }
+        String token = authHeader.substring(7);
+        if (!jwtService.validateToken(token)) {
+            throw new RuntimeException("Invalid token");
         }
     }
 
@@ -108,17 +116,14 @@ public class GraphQLResolver {
 
     @MutationMapping
     public Map<String, Object> login(@Argument String username, @Argument String password) {
-        Optional<User> userOpt = userService.login(username, password);
+        String token = userService.loginAndGetToken(username, password);
         Map<String, Object> payload = new HashMap<>();
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            payload.put("token", "fake-jwt-" + user.getId() + "-" + System.currentTimeMillis());
-            payload.put("user", user);
-            payload.put("rawPassword", password);
+        if (token != null) {
+            payload.put("token", token);
+            payload.put("user", userRepository.findByUsername(username).orElse(null));
         } else {
             payload.put("token", null);
             payload.put("user", null);
-            payload.put("rawPassword", null);
         }
         return payload;
     }

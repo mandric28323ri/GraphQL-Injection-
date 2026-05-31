@@ -5,11 +5,21 @@ if (!user || user.role !== "ADMIN") {
 }
 
 async function loadUsers() {
+    const token = getToken();
     const query = `query { users { id username email role } }`;
 
     try {
-        const data = await graphqlRequest(query);
-        renderUsers(data.users);
+        const response = await fetch(GRAPHQL_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({ query })
+        });
+        const data = await response.json();
+        if (data.errors) throw new Error(data.errors[0].message);
+        renderUsers(data.data.users);
     } catch(err) {
         document.getElementById("usersTable").innerHTML = `<p style="color:red;">${err.message}</p>`;
     }
@@ -54,11 +64,21 @@ function renderUsers(users) {
 async function deleteUser(id, username) {
     if (!confirm(`Obrisati korisnika "${username}"?`)) return;
 
+    const token = getToken();
     const query = `mutation { deleteUser(id: ${id}) }`;
 
     try {
-        const data = await graphqlRequest(query);
-        if (data.deleteUser) {
+        const response = await fetch(GRAPHQL_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({ query })
+        });
+        const data = await response.json();
+        if (data.errors) throw new Error(data.errors[0].message);
+        if (data.data.deleteUser) {
             document.getElementById("row-" + id).remove();
         } else {
             alert("Brisanje nije uspelo");

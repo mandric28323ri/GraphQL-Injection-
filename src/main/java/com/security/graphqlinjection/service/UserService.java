@@ -1,5 +1,6 @@
 package com.security.graphqlinjection.service;
 
+import com.security.graphqlinjection.config.JwtService;
 import com.security.graphqlinjection.model.User;
 import com.security.graphqlinjection.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -54,9 +56,11 @@ public class UserService {
         return false;
     }
 
-    public Optional<User> login(String username, String password) {
+    public String loginAndGetToken(String username, String password) {
         return userRepository.findByUsername(username)
-                .filter(u -> passwordEncoder.matches(password, u.getPassword()));
+                .filter(u -> passwordEncoder.matches(password, u.getPassword()))
+                .map(u -> jwtService.generateToken(u.getUsername(), u.getRole()))
+                .orElse(null);
     }
 
     public Optional<User> updateUser(Long id, String username, String email, String password, String role) {
