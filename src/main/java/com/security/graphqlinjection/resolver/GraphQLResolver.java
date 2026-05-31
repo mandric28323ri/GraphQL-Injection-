@@ -52,7 +52,6 @@ public class GraphQLResolver {
 
     @QueryMapping
     public List<User> searchUsers(@Argument String searchTerm) {
-        System.out.println("[VULNERABLE] searchUsers called with: " + searchTerm);
         return userService.searchUsers(searchTerm);
     }
 
@@ -68,7 +67,6 @@ public class GraphQLResolver {
 
     @QueryMapping
     public List<Post> postsByCategory(@Argument String category) {
-        System.out.println("[VULNERABLE] postsByCategory called with: " + category);
         return postService.findByCategory(category);
     }
 
@@ -96,21 +94,6 @@ public class GraphQLResolver {
     @MutationMapping
     public Boolean deleteUser(@Argument String id) {
         return userService.deleteUser(Long.parseLong(id));
-    }
-
-    @MutationMapping
-    public Post createPost(@Argument Map<String, Object> input) {
-        return postService.createPost(
-                (String) input.get("title"),
-                (String) input.get("content"),
-                (String) input.get("category"),
-                Long.parseLong(input.get("authorId").toString())
-        );
-    }
-
-    @MutationMapping
-    public Boolean deletePost(@Argument String id) {
-        return postService.deletePost(Long.parseLong(id));
     }
 
 

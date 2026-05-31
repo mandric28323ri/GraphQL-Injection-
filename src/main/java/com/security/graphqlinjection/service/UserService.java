@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +17,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JwtService jwtService;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     public List<User> findAll() {
         return userRepository.findAll();
@@ -67,7 +62,7 @@ public class UserService {
         return userRepository.findById(id).map(user -> {
             if (username != null) user.setUsername(username);
             if (email != null) user.setEmail(email);
-            if (password != null) user.setPassword(password);
+            if (password != null) user.setPassword(passwordEncoder.encode(password));
             if (role != null) user.setRole(role);
             return userRepository.save(user);
         });
