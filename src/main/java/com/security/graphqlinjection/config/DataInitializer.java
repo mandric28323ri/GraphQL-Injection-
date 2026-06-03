@@ -49,21 +49,21 @@ public class DataInitializer implements CommandLineRunner {
                 .role("USER")
                 .build());
 
-        Post post1 = postRepository.save(Post.builder()
+        postRepository.save(Post.builder()
                 .title("Introduction to GraphQL")
                 .content("GraphQL is a query language for APIs...")
                 .category("tech")
                 .author(marko)
                 .build());
 
-        Post post2 = postRepository.save(Post.builder()
+        postRepository.save(Post.builder()
                 .title("Security Best Practices")
                 .content("Always validate user input and use parameterized queries...")
                 .category("security")
-                .author(admin)
+                .author(sminka)
                 .build());
 
-        Post post3 = postRepository.save(Post.builder()
+        postRepository.save(Post.builder()
                 .title("Spring Boot Tutorial")
                 .content("Spring Boot makes it easy to create stand-alone applications...")
                 .category("tech")
@@ -80,7 +80,6 @@ public class DataInitializer implements CommandLineRunner {
 
 
         log.info("Data initialized!");
-        log.info("GraphiQL: http://localhost:8080/graphiql");
         log.info("H2 Console: http://localhost:8080/h2-console");
     }
 }

@@ -14,7 +14,7 @@
     <groupId>com.security</groupId>
     <artifactId>graphql-injection</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>GraphQL Injection Demo</name>
+    <name>GraphQL Injection</name>
 
     <properties>
         <java.version>17</java.version>
