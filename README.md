@@ -1,93 +1,256 @@
-# GraphQL Injection RAF
+# GraphQL Injection - Projekat iz bezbednost web servisa
 
+## O projektu
 
+Ovaj projekat demonstrira ranjivosti GraphQL API-ja kroz namerno ranjivo web
+aplikaciju. Projekat se sastoji od Java Spring Boot backenda i HTML/JS frontenda.
+Implementirane su ranjivosti koje se mogu eksploatisati kroz browser i Burp Suite alat.
 
-## Getting started
+Projekat ima dve grane:
+- **main** - ranjiva verzija aplikacije
+- **GraphQL-fix** - zaštićena verzija sa implementiranim mehanizmima odbrane
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+---
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Tehnologije
 
-## Add your files
+- **Backend:** Java 17, Spring Boot 3.2, Spring for GraphQL
+- **Baza podataka:** H2 in-memory
+- **Frontend:** HTML, CSS, JavaScript
+- **Alati za demonstraciju:** Burp Suite
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+---
 
+## Pokretanje aplikacije
+
+### Preduslovi
+- Java 17+
+- Maven
+- Node.js za npx live-server
+
+### Backend
+```bash
+.\mvnw spring-boot:run
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/mstranjancev6023ri/graphql-injection-raf.git
-git branch -M main
-git push -uf origin main
+
+Backend se pokreće na `http://localhost:8080`
+
+
+H2 konzola dostupna na: `http://localhost:8080/h2-console`
+- JDBC URL: `jdbc:h2:mem:demodb`
+- Username: `sa`
+- Password: (prazno)
+
+### Frontend
+Otvoriti `frontend/login.html` kroz Live Server (VS Code ekstenzija) ili:
+```bash
+cd frontend
+npx live-server --port=5500
 ```
 
-## Integrate with your tools
+### Dostupni nalozi
+| Username | Password | Role  |
+|----------|----------|-------|
+| admin | admin123 | ADMIN |
+| marko | marko123 | USER  |
+| nikola | nikola123 | USER  |
+| sminka | sminka123 | USER  |
 
-* [Set up project integrations](https://gitlab.com/mstranjancev6023ri/graphql-injection-raf/-/settings/integrations)
+---
 
-## Collaborate with your team
+## Ranjivosti
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### 1. JPQL Injection - searchUsers
 
-## Test and Deploy
+**Opis:** Parametar `searchTerm` se direktno ubacuje u JPQL upit bez ikakve sanitizacije ili validacije. Napadač može da izmeni logiku upita i dobije podatke koji mu nisu namenjeni.
 
-Use the built-in continuous integration in GitLab.
+**Ranjiv kod:**
+```java
+String jpql = "SELECT u FROM User u WHERE u.username LIKE '%" + searchTerm + "%'";
+return entityManager.createQuery(jpql).getResultList();
+```
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+**Eksploatacija kroz Burp Suite:**
+```graphql
+query {
+    searchUsers(searchTerm: "' OR '1'='1") {
+        id
+        username
+        email
+        password
+        role
+    }
+}
+```
 
-***
+**Rezultat:** Vraća sve korisnike sa lozinkama bez obzira na search term.
 
-# Editing this README
+**Zaštita:** Korišćenje Spring Data parametrizovanih upita:
+```java
+return userRepository.findByUsernameContainingIgnoreCase(searchTerm);
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+---
 
-## Suggestions for a good README
+### 2. JPQL Injection - postsByCategory
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+**Opis:** Parametar `category` se direktno ubacuje u JPQL upit. Napadač može da dobije postove iz skrivenih kategorija.
 
-## Name
-Choose a self-explaining name for your project.
+**Ranjiv kod:**
+```java
+String jpql = "SELECT p FROM Post p WHERE p.category = '" + category + "'";
+return entityManager.createQuery(jpql).getResultList();
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+**Eksploatacija kroz Burp Suite:**
+```graphql
+query {
+    postsByCategory(category: "tech' OR '1'='1") {
+        id
+        title
+        content
+        category
+    }
+}
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+**Rezultat:** Vraća sve postove uključujući skrivene (kategorija `hidden`) sa poverljivim podacima.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+**Zaštita:** Korišćenje Spring Data metode:
+```java
+return postRepository.findByCategory(category);
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+---
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### 3. Izloženi podaci - plaintext lozinke
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+**Opis:** API vraća lozinke svih korisnika u plaintext formatu bez ikakve autentifikacije. Lozinke se čuvaju u bazi kao plaintext.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+**Eksploatacija kroz Burp Suite:**
+```graphql
+query {
+    users {
+        id
+        username
+        email
+        password
+        role
+    }
+}
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+**Rezultat:** Vraća sve korisnike sa plaintext lozinkama bez tokena.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+**Zaštita:**
+- Hashovanje lozinki BCrypt algoritmom
+- Uklanjanje `password` polja iz GraphQL sheme
+- Dodavanje JWT autentifikacije na `users` query
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+---
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### 4. Introspection
 
-## License
-For open source projects, say how it is licensed.
+**Opis:** GraphQL introspection je uključen i dostupan svima. Napadač može da otkrije kompletnu strukturu API-ja - sve tipove, polja, query-je i mutacije.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+**Eksploatacija kroz Burp Suite:**
+```graphql
+{
+    __schema {
+        types {
+            name
+            fields {
+                name
+            }
+        }
+    }
+}
+```
+
+**Rezultat:** Otkriva sve tipove uključujući `User` sa `password` poljem, `Post` sa `postPassword` poljem i sve dostupne mutacije.
+
+**Zaštita:** Isključiti introspection u `application.properties`:
+```properties
+spring.graphql.schema.introspection.enabled=false
+```
+
+---
+
+### 5. Broken Access Control - userById
+
+**Opis:** Query `userById` vraća korisničke podatke uključujući lozinku bez ikakve autentifikacije. Napadač može da menja ID parametar i dobije podatke bilo kog korisnika.
+
+**Eksploatacija kroz Burp Suite:**
+```graphql
+query {
+    userById(id: "1") {
+        id
+        username
+        email
+        password
+        role
+    }
+}
+```
+
+**Rezultat:** Vraća admin kredencijale bez tokena.
+
+**Zaštita:** Dodavanje JWT validacije:
+```java
+private void checkAuth() {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        throw new RuntimeException("Unauthorized");
+    }
+    String token = authHeader.substring(7);
+    if (!jwtService.validateToken(token)) {
+        throw new RuntimeException("Invalid token");
+    }
+}
+```
+
+---
+
+### 6. Hidden Blog Post - postPassword
+
+**Opis:** Post sa kategorijom `hidden` nije vidljiv u normalnom listanju postova, ali sadrži `postPassword` polje. Napadač koji otkrije ID skrivenog posta kroz introspection može direktno upitati to polje.
+
+**Korak 1 - Otkrij shemu kroz introspection:**
+Napadač vidi da `Post` tip ima `postPassword` polje.
+
+**Korak 2 - Eksploatacija:**
+```graphql
+query {
+    postById(id: "4") {
+        id
+        title
+        content
+        postPassword
+    }
+}
+```
+
+**Rezultat:** Vraća sadržaj skrivenog posta sa lozinkom.
+
+**Zaštita:** Ukloniti `postPassword` polje iz GraphQL sheme ili dodati autentifikaciju.
+
+---
+
+## Mehanizmi zaštite (GraphQL-fix grana)
+
+| Ranjivost | Zaštita |
+|-----------|---------|
+| JPQL Injection | Parametrizovani Spring Data upiti |
+| Plaintext lozinke | BCrypt hashovanje |
+| Izloženi podaci | Password polje uklonjeno iz sheme |
+| Introspection | Isključen u application.properties |
+| Broken Access Control | JWT token validacija |
+| Hidden post | postPassword uklonjeno iz sheme |
+
+---
+
+## Projekat radili
+
+- Marko Stranjančević RI 60/2023
+- Nikola Sikirić RI 180/2023
+- Marko Andrić RI 283/2023
